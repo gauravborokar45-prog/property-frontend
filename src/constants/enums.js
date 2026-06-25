@@ -1,0 +1,3 @@
+export const PROPERTY_TYPES = ["FLAT", "HOSTEL", "PG"];
+export const GENDERS = ["ANY", "BOYS", "GIRLS", "FAMILY"];
+export const FURNISH_OPTIONS = ["FURNISHED", "SEMIFURNISHED", "UNFURNISHED"];
