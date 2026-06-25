@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useOwner } from "../context/OwnerContext"; // Import your custom context hook
+import { useNavigate, Link } from "react-router-dom"; // 📦 Import Link here
+import { useOwner } from "../context/OwnerContext"; 
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const OwnerLoginForm = ({ onToggleForm }) => {
-  const { login } = useOwner(); // Destructure the login function from context
-  const navigate = useNavigate(); // For smooth single-page routing redirects
+const OwnerLoginForm = () => {
+  const { login } = useOwner(); 
+  const navigate = useNavigate(); 
 
   const [credentials, setCredentials] = useState({
     username: "",
@@ -40,24 +40,20 @@ const OwnerLoginForm = ({ onToggleForm }) => {
     if (!validate()) return;
 
     try {
-      // Hit the updated login API endpoint
       const response = await axios.post(
         `${API_BASE_URL}/api/owners/login`,
         credentials
       );
 
-      // Your backend now returns the complete Owner object on successful login
       const ownerData = response.data;
 
-      // Update the global context state (this automatically sets localStorage too)
+      // Update context and write matching token key to localStorage
       login(ownerData);
+      localStorage.setItem("isLoggedIn", "true"); 
 
       setMessage(`Login successful! Welcome back, ${ownerData.name}`);
-
-      // Clear form inputs
       setCredentials({ username: "", password: "" });
 
-      // Clean redirect to your listing pipeline dashboard
       setTimeout(() => {
         navigate("/list-property");
       }, 1000);
@@ -68,8 +64,8 @@ const OwnerLoginForm = ({ onToggleForm }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl">
-      <h2 className="text-2xl font-semibold mb-4 text-center">Owner Login</h2>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl relative z-10">
+      <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800">Owner Login</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -79,7 +75,7 @@ const OwnerLoginForm = ({ onToggleForm }) => {
             value={credentials.username}
             onChange={handleChange}
             placeholder="Email or Phone Number"
-            className="w-full px-4 py-2 border rounded"
+            className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-green-500 outline-none transition"
           />
           {errors.username && (
             <p className="text-red-500 text-sm mt-1">{errors.username}</p>
@@ -93,12 +89,12 @@ const OwnerLoginForm = ({ onToggleForm }) => {
             value={credentials.password}
             onChange={handleChange}
             placeholder="Password"
-            className="w-full px-4 py-2 border rounded pr-10"
+            className="w-full px-4 py-2 border rounded pr-10 focus:ring-2 focus:ring-green-500 outline-none transition"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500 hover:text-gray-700"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500 hover:text-gray-700 cursor-pointer z-20"
           >
             {showPassword ? "🙈" : "👁️"}
           </button>
@@ -109,7 +105,7 @@ const OwnerLoginForm = ({ onToggleForm }) => {
 
         <button
           type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 font-medium transition-colors"
+          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 font-medium transition-colors cursor-pointer"
         >
           Login
         </button>
@@ -118,15 +114,28 @@ const OwnerLoginForm = ({ onToggleForm }) => {
       {message && <p className="text-green-600 mt-4 text-center font-medium">{message}</p>}
       {error && <p className="text-red-600 mt-4 text-center font-medium">{error}</p>}
 
-      <p className="mt-4 text-center text-sm text-gray-600">
-        Don't have an account?{" "}
-        <button
-          onClick={onToggleForm}
-          className="text-blue-600 hover:underline font-medium"
-        >
-          Register here
-        </button>
-      </p>
+      {/* --- 🛠️ UPDATED FOOTER LINKS WITH EXPLICIT CLICK ROUTING LAYERS --- */}
+      <div className="mt-6 text-center text-sm text-gray-600 pt-4 border-t border-gray-100 space-y-2 relative z-20">
+        <p>
+          Don't have an owner account?{" "}
+          <Link
+            to="/register-owner"
+            className="text-blue-600 hover:underline font-semibold cursor-pointer inline-block"
+          >
+            Register here
+          </Link>
+        </p>
+        <div className="h-px bg-gray-100 my-2" />
+        <p>
+          Looking for a rental property?{" "}
+          <Link
+            to="/login-user"
+            className="text-emerald-600 hover:underline font-semibold cursor-pointer inline-block"
+          >
+            Switch to Renter Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };
