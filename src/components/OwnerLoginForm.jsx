@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom"; // 📦 Import Link here
+import { useNavigate, Link } from "react-router-dom"; 
 import { useOwner } from "../context/OwnerContext"; 
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 const OwnerLoginForm = () => {
   const { login } = useOwner(); 
@@ -20,9 +20,13 @@ const OwnerLoginForm = () => {
 
   const validate = () => {
     const newErrors = {};
-    if (!credentials.username.trim())
+    // 🛠️ Safety check fallback operators to prevent string runtime crash errors
+    if (!(credentials?.username || "").trim()) {
       newErrors.username = "Email or Phone number is required";
-    if (!credentials.password) newErrors.password = "Password is required";
+    }
+    if (!credentials?.password) {
+      newErrors.password = "Password is required";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -47,11 +51,12 @@ const OwnerLoginForm = () => {
 
       const ownerData = response.data;
 
-      // Update context and write matching token key to localStorage
-      login(ownerData);
+      if (typeof login === "function") {
+        login(ownerData);
+      }
       localStorage.setItem("isLoggedIn", "true"); 
 
-      setMessage(`Login successful! Welcome back, ${ownerData.name}`);
+      setMessage(`Login successful! Welcome back, ${ownerData.name || "Owner"}`);
       setCredentials({ username: "", password: "" });
 
       setTimeout(() => {
@@ -59,7 +64,7 @@ const OwnerLoginForm = () => {
       }, 1000);
 
     } catch (err) {
-      setError(err.response?.data || "Invalid username or password.");
+      setError(err.response?.data || "Invalid username or password configuration.");
     }
   };
 
@@ -72,7 +77,7 @@ const OwnerLoginForm = () => {
           <input
             type="text"
             name="username"
-            value={credentials.username}
+            value={credentials?.username || ""} 
             onChange={handleChange}
             placeholder="Email or Phone Number"
             className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-green-500 outline-none transition"
@@ -86,7 +91,7 @@ const OwnerLoginForm = () => {
           <input
             type={showPassword ? "text" : "password"}
             name="password"
-            value={credentials.password}
+            value={credentials?.password || ""} 
             onChange={handleChange}
             placeholder="Password"
             className="w-full px-4 py-2 border rounded pr-10 focus:ring-2 focus:ring-green-500 outline-none transition"
@@ -114,7 +119,6 @@ const OwnerLoginForm = () => {
       {message && <p className="text-green-600 mt-4 text-center font-medium">{message}</p>}
       {error && <p className="text-red-600 mt-4 text-center font-medium">{error}</p>}
 
-      {/* --- 🛠️ UPDATED FOOTER LINKS WITH EXPLICIT CLICK ROUTING LAYERS --- */}
       <div className="mt-6 text-center text-sm text-gray-600 pt-4 border-t border-gray-100 space-y-2 relative z-20">
         <p>
           Don't have an owner account?{" "}
