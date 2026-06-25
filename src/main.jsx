@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 
 import "./index.css";
-import { store } from "./redux/Store";
+import { store } from "./redux/store";
 import { OwnerProvider } from "./context/OwnerContext";
 import { UserProvider } from "./context/UserContext";
 
